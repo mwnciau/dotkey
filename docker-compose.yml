@@ -1,0 +1,10 @@
+services:
+  ruby:
+    image: ruby:3.4.3
+    working_dir: /var/source
+    volumes:
+      - .:/var/source
+      - ruby-gems:/usr/local/bundle
+
+volumes:
+  ruby-gems:
