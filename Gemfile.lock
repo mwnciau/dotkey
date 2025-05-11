@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    DotKey (1.0.0)
+    dotkey (1.0.1)
 
 GEM
   remote: https://rubygems.org/
@@ -67,12 +67,12 @@ PLATFORMS
   x86_64-linux
 
 DEPENDENCIES
-  DotKey!
-  benchmark-ips
+  benchmark-ips (~> 2.14)
+  dotkey!
   minitest (~> 5.0)
   minitest-reporters (~> 1.1)
-  rubocop (>= 1.73)
-  standard (>= 1.35.1)
+  rubocop (~> 1.75)
+  standard (~> 1.49)
 
 BUNDLED WITH
    2.6.7

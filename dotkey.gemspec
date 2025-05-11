@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name = "dotkey"
-  s.version = "1.0.0"
+  s.version = "1.0.1"
   s.summary = "Interact with nested Ruby data structures using dot-delimited strings"
   s.description = "DotKey provides an elegant way to read, write, and manipulate deeply nested Hashes and Arrays using dot-delimited strings. It supports wildcards for pattern matching, custom delimiters, and flexible handling of missing values - making it ideal for working with complex data structures, configuration objects, and API responses."
   s.authors = ["Simon J"]
