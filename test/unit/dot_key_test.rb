@@ -75,6 +75,8 @@ class DotKeyTest < TestCase
     assert_equal({}, DotKey.get_all({}, "a", include_missing: false))
     assert_equal({"0" => nil}, DotKey.get_all([], "0"))
     assert_equal({}, DotKey.get_all([], "0", include_missing: false))
+    assert_equal({"a.b" => nil}, DotKey.get_all({a: nil}, "a.b"))
+    assert_equal({}, DotKey.get_all({a: nil}, "a.b", include_missing: false))
 
     assert_equal({"a" => nil}, DotKey.get_all({a: nil}, "**"))
     assert_equal({"a" => nil}, DotKey.get_all({a: nil}, "**", include_missing: false))
@@ -127,6 +129,11 @@ class DotKeyTest < TestCase
       {"0" => 1, "1" => nil, "2" => 3},
       DotKey.get_all([1, nil, 3], "*", include_missing: false),
     )
+
+    assert_equal(
+      {"a.*" => nil},
+      DotKey.get_all({a: nil}, "a.*"),
+    )
   end
 
   def test_get_all_invalid_array
@@ -178,6 +185,11 @@ class DotKeyTest < TestCase
     assert_equal(
       {"0.a.0" => 1, "0.b.0" => 2},
       DotKey.get_all([{a: [1], b: [2], c: []}], "0.**.0", include_missing: false),
+    )
+
+    assert_equal(
+      {"a.**" => nil},
+      DotKey.get_all({a: nil}, "a.**"),
     )
   end
 
@@ -278,6 +290,26 @@ class DotKeyTest < TestCase
       DotKey.get_all(data, "**.*", raise_on_invalid: false),
     )
 
+    assert_equal(
+      {"b.c.d" => nil},
+      DotKey.get_all({b: {}}, "b.c.d"),
+    )
+    assert_raises(DotKey::InvalidTypeError) { DotKey.get_all({b: []}, "b.c.d") }
+    assert_equal(
+      {"b.0.d" => nil},
+      DotKey.get_all({b: []}, "b.0.d"),
+    )
+    assert_raises(DotKey::InvalidTypeError) { DotKey.get_all({a: "a string"}, "a.b") }
+
+
+    assert_equal(
+      {"b.c.d" => nil},
+      DotKey.get_all({b: []}, "b.c.d", raise_on_invalid: false),
+    )
+    assert_equal(
+      {"a.b" => nil},
+      DotKey.get_all({a: "a string"}, "a.b", raise_on_invalid: false),
+    )
     assert_equal(
       {"a.0.c" => nil, "a.1.c" => 3},
       DotKey.get_all(data, "a.*.c"),
@@ -524,5 +556,23 @@ class DotKeyTest < TestCase
     assert_equal({a: {b: []}}, data)
   ensure
     DotKey.delimiter = "."
+  end
+
+  def test_example
+    data = {users: [
+      {name: "Alice", languages: ["English", "French"]},
+      {name: "Bob", languages: ["German", "French"]},
+    ]}
+
+    DotKey.get(data, "users.0.name")
+      #=> "Alice"
+
+    DotKey.get_all(data, "users.*.languages.*").values.uniq
+      #=> ["English", "French", "German"]
+
+    DotKey.set!(data, "users.0", {name: "Charlie", languages: ["English"]})
+    DotKey.delete!(data, "users.1")
+    DotKey.flatten(data)
+      #=> {"users.0.name" => "Charlie", "users.0.languages.0" => "English"}
   end
 end

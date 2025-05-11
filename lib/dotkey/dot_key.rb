@@ -96,21 +96,21 @@ class DotKey
     # an error is raised.
     #
     #   # `b.c` is nil so the result is nil
-    #   DotKey.get({b: {}}, "b.c.d")        #=> nil
+    #   DotKey.get_all({b: {}}, "b.c.d")        #=> {"b.c.d" => nil}
     #
     #   # `c` is not a valid key for an Array, so an error is raised
-    #   DotKey.get({b: []}, "b.c.d")        #=> raises DotKey::InvalidTypeError
+    #   DotKey.get_all({b: []}, "b.c.d")        #=> raises DotKey::InvalidTypeError
     #
     #   # `0` is a valid key for an array, but is nil so the result is nil
-    #   DotKey.get({b: []}, "b.0.d")        #=> nil
+    #   DotKey.get_all({b: []}, "b.0.d")        #=> {"b.0.d" => nil}
     #
     #   # Strings cannot be traversed so an error is raised
-    #   DotKey.get({a: "a string"}, "a.b")  #=> raises DotKey::InvalidTypeError
+    #   DotKey.get_all({a: "a string"}, "a.b")  #=> raises DotKey::InvalidTypeError
     #
     # This behaviour can be disabled by specifying the <tt>raise_on_invalid</tt> parameter.
     #
-    #   DotKey.get({b: []}, "b.c.d", raise_on_invalid: false)        #=> nil
-    #   DotKey.get({a: "a string"}, "a.b", raise_on_invalid: false)  #=> nil
+    #   DotKey.get_all({b: []}, "b.c.d", raise_on_invalid: false)        #=> {"b.c.d" => nil}
+    #   DotKey.get_all({a: "a string"}, "a.b", raise_on_invalid: false)  #=> {"a.b" => nil}
     #
     # Missing values are included in the result as <tt>nil</tt> values, but these can be
     # omitted by specifying the <tt>include_missing</tt> parameter.
@@ -147,6 +147,10 @@ class DotKey
               array.each_with_index do |item, index|
                 object["#{key_prefix}#{index}"] = item
               end
+            elsif array.nil?
+              if include_missing
+                object["#{key_prefix}*"] = nil
+              end
             elsif raise_on_invalid
               raise InvalidTypeError.new "Expected #{parent_key} to be an Array, but got #{array.class}"
             elsif include_missing
@@ -159,6 +163,10 @@ class DotKey
             if hash.is_a? Hash
               hash.each do |hash_key, item|
                 object["#{key_prefix}#{hash_key}"] = item
+              end
+            elsif hash.nil?
+              if include_missing
+                object["#{key_prefix}**"] = nil
               end
             elsif raise_on_invalid
               raise InvalidTypeError.new "Expected #{parent_key} to be a Hash, but got #{hash.class}"
@@ -193,6 +201,10 @@ class DotKey
                 elsif include_missing
                   object["#{key_prefix}#{key}"] = nil
                 end
+              end
+            elsif val.nil?
+              if include_missing
+                object["#{key_prefix}#{key}"] = nil
               end
             elsif raise_on_invalid
               if val.is_a?(Array) && key_as_int == :invalid

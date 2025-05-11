@@ -78,23 +78,23 @@ If any values along the path are `nil`, `nil` is returned. However, trying to tr
 
 ```ruby
 # `b.c` is nil so the result is nil
-DotKey.get({b: {}}, "b.c.d")        # => nil
+DotKey.get_all({b: {}}, "b.c.d")        #=> {"b.c.d" => nil}
 
 # `c` is not a valid key for an Array, so an error is raised
-DotKey.get({b: []}, "b.c.d")        # => raises DotKey::InvalidTypeError
+DotKey.get_all({b: []}, "b.c.d")        #=> raises DotKey::InvalidTypeError
 
 # `0` is a valid key for an array, but is nil so the result is nil
-DotKey.get({b: []}, "b.0.d")        # => nil
+DotKey.get_all({b: []}, "b.0.d")        #=> {"b.0.d" => nil}
 
 # Strings cannot be traversed so an error is raised
-DotKey.get({a: "a string"}, "a.b")  # => raises DotKey::InvalidTypeError
+DotKey.get_all({a: "a string"}, "a.b")  #=> raises DotKey::InvalidTypeError
 ```
 
-This behaviour can be disabled by specifying the `raise_on_invalid` parameter:
+This behaviour can be disabled by specifying the `raise_on_invalid` parameter.
 
 ```ruby
-DotKey.get({b: []}, "b.c.d", raise_on_invalid: false)        # => nil
-DotKey.get({a: "a string"}, "a.b", raise_on_invalid: false)  # => nil
+DotKey.get_all({b: []}, "b.c.d", raise_on_invalid: false)        #=> {"b.c.d" => nil}
+DotKey.get_all({a: "a string"}, "a.b", raise_on_invalid: false)  #=> {"a.b" => nil}
 ```
 
 Missing values are included in the result as `nil` values, but these can be omitted by specifying the `include_missing` parameter:
